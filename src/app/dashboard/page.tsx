@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 export default async function Dashboard() {
   const supabase = createClient()
-  const { data: { user } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser() // <- FIXED: added }
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
