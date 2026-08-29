@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRADER - School Marks Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8FAFC; --surface:#FFFFFF; --primary:#2563EB; --primary-hover:#1D4ED8;
+  --text:#0F172A; --muted:#64748B; --border:#E2E8F0; --success:#16A34A; --danger:#DC2626;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{background:var(--bg);color:var(--text);}
+.hidden{display:none !important;}
+
+/* LOGIN */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-card{background:var(--surface);padding:40px;border-radius:12px;border:1px solid var(--border);width:400px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.login-card h1{font-size:28px;font-weight:700;margin-bottom:4px;}
+.login-card p{color:var(--muted);margin-bottom:24px;font-size:14px;}
+.input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:16px;}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 1px var(--primary);}
+.btn{background:var(--primary);color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;}
+.btn:hover{background:var(--primary-hover);}
+
+/* APP LAYOUT */
+#app-screen{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);padding:16px;position:fixed;height:100vh;}
+.sidebar h1{font-size:24px;font-weight:700;margin-bottom:32px;}
+.nav-group{color:var(--muted);font-size:12px;font-weight:600;margin:16px 0 8px 12px;}
+.nav-item{padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:2px;}
+.nav-item:hover{background:#F1F5F9;}
+.nav-item.active{background:#EFF6FF;color:var(--primary);font-weight:600;}
+.sidebar-footer{position:absolute;bottom:16px;font-size:14px;}
+.main{margin-left:240px;flex:1;padding:32px;}
+
+/* CARDS + TABLE */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.stat-card .label{color:var(--muted);font-size:14px;}
+.stat-card .value{font-size:32px;font-weight:700;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{text-align:left;padding:12px;color:var(--muted);font-weight:600;background:var(--bg);border-bottom:1px solid var(--border);}
+td{padding:12px;border-bottom:1px solid var(--border);}
+.mark-input{width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;text-align:center;}
+.mark-input:focus{outline:none;border-color:var(--primary);}
+.status{font-size:13px;}
+.status.saved{color:var(--success);}
+.status.missing{color:var(--danger);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>GRADER</h1>
+    <p>School Marks Management</p>
+    <input id="username" class="input" placeholder="Username" value="admin">
+    <input id="password" class="input" type="password" placeholder="Password" value="password">
+    <button class="btn" onclick="login()">Sign in</button>
+    <p id="login-error" style="color:var(--danger);font-size:13px;margin-top:12px;" class="hidden">Invalid credentials</p>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen" class="hidden">
+  <div class="sidebar">
+    <h1>GRADER</h1>
+    <div class="nav-group">ACADEMIC</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">Dashboard</div>
+    <div class="nav-item" onclick="showPage('marks')">Enter Marks</div>
+    <div class="nav-group">ADMIN</div>
+    <div class="nav-item">Users</div>
+    <div class="nav-item">History</div>
+    <div class="sidebar-footer">
+      <div style="font-weight:600">Sekonyela Sentle</div>
+      <div style="color:var(--muted);font-size:13px">admin</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- DASHBOARD PAGE -->
+    <div id="dashboard-page">
+      <h2 style="font-size:24px;font-weight:600;margin-bottom:24px;">Good morning, Sekonyela</h2>
+      <div class="stats-grid">
+        <div class="card stat-card"><div class="label">Students</div><div class="value">4</div></div>
+        <div class="card stat-card"><div class="label">Teachers</div><div class="value">1</div></div>
+        <div class="card stat-card"><div class="label">Classes</div><div class="value">1</div></div>
+        <div class="card stat-card"><div class="label">Assessments</div><div class="value">1</div></div>
+      </div>
+    </div>
+
+    <!-- MARK ENTRY PAGE -->
+    <div id="marks-page" class="hidden">
+      <h2 style="font-size:24px;font-weight:600;">← Marks</h2>
+      <p style="color:var(--muted);margin-bottom:16px;">Grade 8A | Mathematics | Mathematics Test 1 | Max: 50</p>
+      <p id="completed-count" style="font-size:14px;margin-bottom:16px;">3 of 4 completed</p>
+      
+      <div class="card" style="padding:0;">
+        <table>
+          <thead><tr><th>Student</th><th>Mark</th><th>Status</th></tr></thead>
+          <tbody id="marks-table"></tbody>
+        </table>
+      </div>
+      <button class="btn" style="width:auto;margin-top:16px;" onclick="saveMarks()">Save Changes</button>
+      <p id="save-msg" style="color:var(--success);margin-top:12px;" class="hidden">✓ Marks saved successfully</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// HARDCODED DATA
+const students = [
+  {id:1, name:'Thabo Mokoena', mark:'42'},
+  {id:2, name:'Lerato Nkosi', mark:'38'},
+  {id:3, name:'Neo Radebe', mark:'45'},
+  {id:4, name:'Mpho Tau', mark:''}
+]
+const MAX_MARK = 50
+
+// LOGIN
+function login(){
+  const u = document.getElementById('username').value
+  const p = document.getElementById('password').value
+  if(u === 'admin' && p === 'password'){
+    document.getElementById('login-screen').classList.add('hidden')
+    document.getElementById('app-screen').classList.remove('hidden')
+    renderMarks()
+  } else {
+    document.getElementById('login-error').classList.remove('hidden')
+  }
+}
+
+// NAVIGATION
+function showPage(page){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'))
+  event.target.classList.add('active')
+  document.getElementById('dashboard-page').classList.add('hidden')
+  document.getElementById('marks-page').classList.add('hidden')
+  document.getElementById(page+'-page').classList.remove('hidden')
+}
+
+// MARK TABLE
+function renderMarks(){
+  const tbody = document.getElementById('marks-table')
+  tbody.innerHTML = ''
+  students.forEach(s=>{
+    const status = s.mark ? 'saved' : 'missing'
+    const statusText = s.mark ? '✓ Saved' : '! Missing'
+    tbody.innerHTML += `
+      <tr>
+        <td>${s.name}</td>
+        <td><input class="mark-input" type="number" value="${s.mark}" 
+          onkeydown="if(event.key==='Tab'){event.preventDefault(); focusNext(this)}"
+          oninput="validateMark(this, ${s.id})"></td>
+        <td class="status ${status}">${statusText}</td>
+      </tr>
+    `
+  })
+  updateCount()
+}
+
+function validateMark(input, id){
+  const val = input.value
+  if(val !== '' && (Number(val) < 0 || Number(val) > MAX_MARK)){
+    alert(`Maximum mark is ${MAX_MARK}`)
+    input.value = ''
+    return
+  }
+  students.find(s=>s.id===id).mark = val
+  renderMarks()
+}
+
+function updateCount(){
+  const completed = students.filter(s=>s.mark!=='').length
+  document.getElementById('completed-count').innerText = `${completed} of ${students.length} completed`
+}
+
+function focusNext(current){
+  const inputs = [...document.querySelectorAll('.mark-input')]
+  const idx = inputs.indexOf(current)
+  if(inputs[idx+1]) inputs[idx+1].focus()
+}
+
+function saveMarks(){
+  document.getElementById('save-msg').classList.remove('hidden')
+  setTimeout(()=>document.getElementById('save-msg').classList.add('hidden'), 2000)
+}
+</script>
+
+</body>
+</html>
