@@ -2,193 +2,122 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GRADER - School Marks Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>GRADER</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#F8FAFC; --surface:#FFFFFF; --primary:#2563EB; --primary-hover:#1D4ED8;
-  --text:#0F172A; --muted:#64748B; --border:#E2E8F0; --success:#16A34A; --danger:#DC2626;
-}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:var(--bg);color:var(--text);}
-.hidden{display:none !important;}
-
-/* LOGIN */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;}
-.login-card{background:var(--surface);padding:40px;border-radius:12px;border:1px solid var(--border);width:400px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
-.login-card h1{font-size:28px;font-weight:700;margin-bottom:4px;}
-.login-card p{color:var(--muted);margin-bottom:24px;font-size:14px;}
-.input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:16px;}
-.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 1px var(--primary);}
-.btn{background:var(--primary);color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;}
-.btn:hover{background:var(--primary-hover);}
-
-/* APP LAYOUT */
-#app-screen{display:flex;min-height:100vh;}
-.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);padding:16px;position:fixed;height:100vh;}
-.sidebar h1{font-size:24px;font-weight:700;margin-bottom:32px;}
-.nav-group{color:var(--muted);font-size:12px;font-weight:600;margin:16px 0 8px 12px;}
-.nav-item{padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:2px;}
-.nav-item:hover{background:#F1F5F9;}
-.nav-item.active{background:#EFF6FF;color:var(--primary);font-weight:600;}
-.sidebar-footer{position:absolute;bottom:16px;font-size:14px;}
-.main{margin-left:240px;flex:1;padding:32px;}
-
-/* CARDS + TABLE */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-.stat-card .label{color:var(--muted);font-size:14px;}
-.stat-card .value{font-size:32px;font-weight:700;}
-table{width:100%;border-collapse:collapse;font-size:14px;}
-th{text-align:left;padding:12px;color:var(--muted);font-weight:600;background:var(--bg);border-bottom:1px solid var(--border);}
-td{padding:12px;border-bottom:1px solid var(--border);}
-.mark-input{width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;text-align:center;}
-.mark-input:focus{outline:none;border-color:var(--primary);}
-.status{font-size:13px;}
-.status.saved{color:var(--success);}
-.status.missing{color:var(--danger);}
+  :root{--bg:#F8FAFC;--surface:#FFFFFF;--primary:#2563EB;--text:#0F172A;--muted:#64748B;--border:#E2E8F0;--success:#16A34A;--danger:#DC2626}
+  *{font-family:'Inter',sans-serif;margin:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text)}
+  .hidden{display:none}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+  .btn{background:var(--primary);color:white;border:0;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer}
+  .btn:hover{background:#1D4ED8}
+  .input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
-<div id="login-screen">
-  <div class="login-card">
-    <h1>GRADER</h1>
-    <p>School Marks Management</p>
-    <input id="username" class="input" placeholder="Username" value="admin">
-    <input id="password" class="input" type="password" placeholder="Password" value="password">
-    <button class="btn" onclick="login()">Sign in</button>
-    <p id="login-error" style="color:var(--danger);font-size:13px;margin-top:12px;" class="hidden">Invalid credentials</p>
+<!-- LOGIN -->
+<div id="login" style="display:flex;align-items:center;justify-content:center;height:100vh">
+  <div class="card" style="width:400px">
+    <h1 style="font-size:28px;font-weight:700">GRADER</h1>
+    <p style="color:var(--muted);margin-bottom:20px">School Marks Management</p>
+    <input id="user" class="input" placeholder="Username" value="admin">
+    <input id="pass" class="input" type="password" placeholder="Password" value="password">
+    <button class="btn" style="width:100%" onclick="login()">Sign in</button>
+    <p id="err" class="hidden" style="color:var(--danger);margin-top:10px">Wrong username or password</p>
   </div>
 </div>
 
-<!-- APP SCREEN -->
-<div id="app-screen" class="hidden">
-  <div class="sidebar">
-    <h1>GRADER</h1>
-    <div class="nav-group">ACADEMIC</div>
-    <div class="nav-item active" onclick="showPage('dashboard')">Dashboard</div>
-    <div class="nav-item" onclick="showPage('marks')">Enter Marks</div>
-    <div class="nav-group">ADMIN</div>
-    <div class="nav-item">Users</div>
-    <div class="nav-item">History</div>
-    <div class="sidebar-footer">
-      <div style="font-weight:600">Sekonyela Sentle</div>
-      <div style="color:var(--muted);font-size:13px">admin</div>
-    </div>
+<!-- APP -->
+<div id="app" class="hidden" style="display:flex">
+  <div style="width:240px;background:var(--surface);border-right:1px solid var(--border);height:100vh;padding:16px">
+    <h2 style="font-weight:700;font-size:24px;margin-bottom:30px">GRADER</h2>
+    <div style="color:var(--muted);font-size:12px;font-weight:600;margin:10px 0">ACADEMIC</div>
+    <div onclick="show('dash')" style="padding:8px 12px;border-radius:8px;cursor:pointer" id="nav-dash">Dashboard</div>
+    <div onclick="show('marks')" style="padding:8px 12px;border-radius:8px;cursor:pointer" id="nav-marks">Enter Marks</div>
   </div>
 
-  <div class="main">
-    <!-- DASHBOARD PAGE -->
-    <div id="dashboard-page">
-      <h2 style="font-size:24px;font-weight:600;margin-bottom:24px;">Good morning, Sekonyela</h2>
-      <div class="stats-grid">
-        <div class="card stat-card"><div class="label">Students</div><div class="value">4</div></div>
-        <div class="card stat-card"><div class="label">Teachers</div><div class="value">1</div></div>
-        <div class="card stat-card"><div class="label">Classes</div><div class="value">1</div></div>
-        <div class="card stat-card"><div class="label">Assessments</div><div class="value">1</div></div>
+  <div style="flex:1;padding:32px">
+    <!-- DASHBOARD -->
+    <div id="dash">
+      <h2 style="font-size:24px;font-weight:600">Good morning, Sekonyela</h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px">
+        <div class="card"><p style="color:var(--muted)">Students</p><p style="font-size:32px;font-weight:700">4</p></div>
+        <div class="card"><p style="color:var(--muted)">Teachers</p><p style="font-size:32px;font-weight:700">1</p></div>
+        <div class="card"><p style="color:var(--muted)">Classes</p><p style="font-size:32px;font-weight:700">1</p></div>
+        <div class="card"><p style="color:var(--muted)">Assessments</p><p style="font-size:32px;font-weight:700">1</p></div>
       </div>
     </div>
 
-    <!-- MARK ENTRY PAGE -->
-    <div id="marks-page" class="hidden">
-      <h2 style="font-size:24px;font-weight:600;">← Marks</h2>
-      <p style="color:var(--muted);margin-bottom:16px;">Grade 8A | Mathematics | Mathematics Test 1 | Max: 50</p>
-      <p id="completed-count" style="font-size:14px;margin-bottom:16px;">3 of 4 completed</p>
-      
-      <div class="card" style="padding:0;">
-        <table>
-          <thead><tr><th>Student</th><th>Mark</th><th>Status</th></tr></thead>
-          <tbody id="marks-table"></tbody>
+    <!-- MARKS -->
+    <div id="marks" class="hidden">
+      <h2 style="font-size:24px;font-weight:600">Grade 8A | Mathematics Test 1</h2>
+      <p style="color:var(--muted)">Max Mark: 50</p>
+      <p id="count" style="margin:16px 0">3 of 4 completed</p>
+      <div class="card" style="padding:0">
+        <table style="width:100%">
+          <tr style="background:var(--bg)"><th style="text-align:left;padding:12px">Student</th><th style="text-align:left;padding:12px">Mark</th><th style="text-align:left;padding:12px">Status</th></tr>
+          <tbody id="tbody"></tbody>
         </table>
       </div>
-      <button class="btn" style="width:auto;margin-top:16px;" onclick="saveMarks()">Save Changes</button>
-      <p id="save-msg" style="color:var(--success);margin-top:12px;" class="hidden">✓ Marks saved successfully</p>
+      <button class="btn" style="margin-top:16px" onclick="save()">Save Changes</button>
+      <p id="saved" class="hidden" style="color:var(--success);margin-top:10px">✓ Marks saved successfully</p>
     </div>
   </div>
 </div>
 
 <script>
-// HARDCODED DATA
-const students = [
-  {id:1, name:'Thabo Mokoena', mark:'42'},
-  {id:2, name:'Lerato Nkosi', mark:'38'},
-  {id:3, name:'Neo Radebe', mark:'45'},
-  {id:4, name:'Mpho Tau', mark:''}
+const students=[
+  {name:'Thabo Mokoena',mark:'42'},
+  {name:'Lerato Nkosi',mark:'38'},
+  {name:'Neo Radebe',mark:'45'},
+  {name:'Mpho Tau',mark:''}
 ]
-const MAX_MARK = 50
 
-// LOGIN
 function login(){
-  const u = document.getElementById('username').value
-  const p = document.getElementById('password').value
-  if(u === 'admin' && p === 'password'){
-    document.getElementById('login-screen').classList.add('hidden')
-    document.getElementById('app-screen').classList.remove('hidden')
-    renderMarks()
-  } else {
-    document.getElementById('login-error').classList.remove('hidden')
+  if(document.getElementById('user').value==='admin' && document.getElementById('pass').value==='password'){
+    document.getElementById('login').classList.add('hidden')
+    document.getElementById('app').classList.remove('hidden')
+    render()
+  }else{
+    document.getElementById('err').classList.remove('hidden')
   }
 }
 
-// NAVIGATION
-function showPage(page){
-  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'))
-  event.target.classList.add('active')
-  document.getElementById('dashboard-page').classList.add('hidden')
-  document.getElementById('marks-page').classList.add('hidden')
-  document.getElementById(page+'-page').classList.remove('hidden')
+function show(page){
+  document.getElementById('dash').classList.add('hidden')
+  document.getElementById('marks').classList.add('hidden')
+  document.getElementById(page).classList.remove('hidden')
+  document.getElementById('nav-dash').style.background=''
+  document.getElementById('nav-marks').style.background=''
+  document.getElementById('nav-'+page).style.background='#EFF6FF'
 }
 
-// MARK TABLE
-function renderMarks(){
-  const tbody = document.getElementById('marks-table')
-  tbody.innerHTML = ''
-  students.forEach(s=>{
-    const status = s.mark ? 'saved' : 'missing'
-    const statusText = s.mark ? '✓ Saved' : '! Missing'
-    tbody.innerHTML += `
-      <tr>
-        <td>${s.name}</td>
-        <td><input class="mark-input" type="number" value="${s.mark}" 
-          onkeydown="if(event.key==='Tab'){event.preventDefault(); focusNext(this)}"
-          oninput="validateMark(this, ${s.id})"></td>
-        <td class="status ${status}">${statusText}</td>
-      </tr>
-    `
+function render(){
+  let html=''
+  let completed=0
+  students.forEach((s,i)=>{
+    if(s.mark!=='')completed++
+    html+=`<tr>
+      <td style="padding:12px;border-top:1px solid var(--border)">${s.name}</td>
+      <td style="padding:12px;border-top:1px solid var(--border)">
+        <input value="${s.mark}" oninput="students[${i}].mark=this.value;render()" 
+        style="width:80px;padding:6px;border:1px solid var(--border);border-radius:6px">
+      </td>
+      <td style="padding:12px;border-top:1px solid var(--border);color:${s.mark?'var(--success)':'var(--danger)'}">
+        ${s.mark?'✓ Saved':'! Missing'}
+      </td>
+    </tr>`
   })
-  updateCount()
+  document.getElementById('tbody').innerHTML=html
+  document.getElementById('count').innerText=`${completed} of ${students.length} completed`
 }
 
-function validateMark(input, id){
-  const val = input.value
-  if(val !== '' && (Number(val) < 0 || Number(val) > MAX_MARK)){
-    alert(`Maximum mark is ${MAX_MARK}`)
-    input.value = ''
-    return
-  }
-  students.find(s=>s.id===id).mark = val
-  renderMarks()
-}
-
-function updateCount(){
-  const completed = students.filter(s=>s.mark!=='').length
-  document.getElementById('completed-count').innerText = `${completed} of ${students.length} completed`
-}
-
-function focusNext(current){
-  const inputs = [...document.querySelectorAll('.mark-input')]
-  const idx = inputs.indexOf(current)
-  if(inputs[idx+1]) inputs[idx+1].focus()
-}
-
-function saveMarks(){
-  document.getElementById('save-msg').classList.remove('hidden')
-  setTimeout(()=>document.getElementById('save-msg').classList.add('hidden'), 2000)
+function save(){
+  document.getElementById('saved').classList.remove('hidden')
+  setTimeout(()=>document.getElementById('saved').classList.add('hidden'),2000)
 }
 </script>
-
 </body>
 </html>
