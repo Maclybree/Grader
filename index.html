@@ -3,26 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GRADER - Academic Command</title>
+<title>GRADER - Interactive Prototype</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#F8FAFC; --surface:#FFFFFF; --primary:#2563EB; --primary-hover:#1D4ED8;
-  --text:#0F172A; --muted:#64748B; --border:#E2E8F0; --success:#16A34A; 
+  --text:#0F172A; --muted:#64748B; --border:#E2E8F0; --success:#16A34A;
   --warning:#D97706; --danger:#DC2626; --radius:12px;
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
 body{background:var(--bg);color:var(--text);font-size:14px;}
-.hidden{display:none !important;}
+.hidden{display:none!important;}
+.prototype-badge{position:fixed;bottom:16px;right:16px;background:var(--warning);color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;z-index:100}
 
-/* LAYOUT ORDER 23 */
-.app{display:flex;min-height:100vh;}
-.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);padding:16px;position:fixed;height:100vh;display:flex;flex-direction:column;}
-.sidebar h1{font-size:24px;font-weight:700;margin-bottom:32px;letter-spacing:-0.5px;}
+/* LAYOUT ORDER 22 */
+.app{display:flex;min-height:100vh;flex-direction:column;}
+.navbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;top:0;left:0;right:0;z-index:40}
+.navbar-left{display:flex;align-items:center;gap:16px}
+.navbar-search{width:300px}
+.app-body{display:flex;margin-top:56px}
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);padding:16px;position:fixed;top:56px;bottom:0;display:flex;flex-direction:column;}
+.sidebar h1{font-size:20px;font-weight:700;margin-bottom:24px;letter-spacing:-0.5px;}
 .nav-group{color:var(--muted);font-size:12px;font-weight:600;margin:16px 0 8px 12px;text-transform:uppercase;letter-spacing:0.5px;}
-.nav-item{padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;margin-bottom:2px;display:flex;align-items:center;gap:8px;}
+.nav-item{padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;margin-bottom:2px;}
 .nav-item:hover{background:#F1F5F9;}
 .nav-item.active{background:#EFF6FF;color:var(--primary);}
+.nav-item.disabled{color:var(--muted);cursor:not-allowed;}
 .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
 .main{margin-left:240px;flex:1;padding:32px;}
 
@@ -31,6 +37,7 @@ body{background:var(--bg);color:var(--text);font-size:14px;}
 .btn{background:var(--primary);color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}
 .btn:hover{background:var(--primary-hover);}
 .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.btn-danger{background:var(--danger)}
 .input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;}
 .input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 1px var(--primary);}
 
@@ -42,10 +49,8 @@ h2{font-size:20px;font-weight:600;}
 /* LOGIN ORDER 28 */
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;}
 .login-card{width:420px}
-
-/* DASHBOARD ORDER 22, 29 */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;}
-.stat-card .value{font-size:32px;font-weight:700;margin-top:4px;}
+.demo-accounts{margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.demo-btn{width:100%;margin-bottom:8px;background:#F1F5F9;color:var(--text)}
 
 /* TABLES ORDER 31 */
 .table-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
@@ -55,287 +60,393 @@ th{text-align:left;padding:12px 16px;font-size:13px;font-weight:600;color:var(--
 td{padding:12px 16px;border-bottom:1px solid var(--border);}
 tr:last-child td{border-bottom:none;}
 
-/* MARK ENTRY ORDER 15, 16, 30 */
+/* MARK ENTRY ORDER 13 */
 .mark-input{width:80px;padding:8px;border:1px solid var(--border);border-radius:8px;text-align:center;font-weight:600;}
-.mark-input:focus{border-color:var(--primary);}
+.mark-input.dirty{border-color:var(--warning)}
 .status{font-size:13px;font-weight:500;}
 .status.saved{color:var(--success);}
+.status.unsaved{color:var(--warning);}
 .status.missing{color:var(--danger);}
-.feedback{margin-top:12px;font-weight:500;}
 
-/* RESPONSIVE ORDER 24 */
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%);position:fixed;z-index:50}
-  .main{margin-left:0}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-}
+/* MODAL */
+.modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:500px}
+
+/* TOAST ORDER 27 */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;box-shadow:0 4px 12px rgba(0,0,0,0.1);display:flex;align-items:center;gap:8px;z-index:60}
+.toast.success{border-left:4px solid var(--success)}
+.toast.error{border-left:4px solid var(--danger)}
 </style>
 </head>
 <body>
+
+<div class="prototype-badge">PROTOTYPE • DEMO DATA</div>
 
 <!-- ORDER 28: LOGIN -->
 <div id="login-screen">
   <div class="card login-card">
     <h1>GRADER</h1>
     <p class="label" style="margin-bottom:24px">School Marks Management</p>
-    <input id="email" class="input" placeholder="Email" value="admin@school.ls">
-    <input id="password" class="input" type="password" placeholder="Password" value="password">
+    <input id="email" class="input" placeholder="Email">
+    <input id="password" class="input" type="password" placeholder="Password">
     <button class="btn" style="width:100%" onclick="login()">Sign in</button>
-    <p id="login-error" class="label" style="color:var(--danger);margin-top:12px" class="hidden"></p>
+    <p id="login-error" class="label hidden" style="color:var(--danger);margin-top:12px"></p>
+
+    <div class="demo-accounts">
+      <p class="label" style="margin-bottom:8px">Demo Accounts:</p>
+      <button class="btn btn-secondary demo-btn" onclick="quickLogin('admin@school.ls','admin123')">Continue as Administrator</button>
+      <button class="btn btn-secondary demo-btn" onclick="quickLogin('teacher@school.ls','teacher123')">Continue as Teacher</button>
+    </div>
   </div>
 </div>
 
-<!-- ORDER 23: APP LAYOUT -->
+<!-- APP -->
 <div id="app-screen" class="app hidden">
-  <div class="sidebar">
-    <h1>GRADER</h1>
-    <div id="nav-admin">
-      <div class="nav-group">ACADEMIC</div>
-      <div class="nav-item active" onclick="route('admin')">Dashboard</div>
-      <div class="nav-item" onclick="route('classes')">Classes</div>
-      <div class="nav-item" onclick="route('students')">Students</div>
-      <div class="nav-item" onclick="route('subjects')">Subjects</div>
-      <div class="nav-item" onclick="route('assessments')">Assessments</div>
-      <div class="nav-group">MARKS</div>
-      <div class="nav-item" onclick="route('history')">History</div>
-      <div class="nav-group">ADMIN</div>
-      <div class="nav-item" onclick="route('users')">Users</div>
-      <div class="nav-item" onclick="route('assignments')">Assignments</div>
+  <div class="navbar">
+    <div class="navbar-left">
+      <strong>GRADER</strong>
+      <input class="input navbar-search" placeholder="Search...">
     </div>
-    <div id="nav-teacher" class="hidden">
-      <div class="nav-group">MY TEACHING</div>
-      <div class="nav-item active" onclick="route('teacher')">Dashboard</div>
-      <div class="nav-item" onclick="route('teacher-classes')">Classes</div>
-      <div class="nav-item" onclick="route('teacher-assessments')">Assessments</div>
-      <div class="nav-group">MARKS</div>
-      <div class="nav-item" onclick="route('marks')">Enter Marks</div>
-      <div class="nav-item" onclick="route('teacher-history')">History</div>
-    </div>
-    <div class="sidebar-footer">
-      <div style="font-weight:600" id="user-name">Sekonyela Sentle</div>
-      <div class="label" id="user-role">admin</div>
-      <div class="label" style="cursor:pointer;margin-top:8px" onclick="logout()">Log out</div>
+    <div style="position:relative">
+      <span id="nav-user" style="font-weight:600;cursor:pointer" onclick="toggleUserMenu()">Sekonyela Sentle ▾</span>
+      <div id="user-menu" class="card hidden" style="position:absolute;right:0;top:40px;width:200px;padding:12px">
+        <div id="nav-user-role" class="label">Administrator</div>
+        <div style="margin:8px 0;border-top:1px solid var(--border)"></div>
+        <div style="cursor:pointer" onclick="logout()">Log out</div>
+      </div>
     </div>
   </div>
 
-  <div class="main" id="main-content"></div>
+  <div class="app-body">
+    <div class="sidebar">
+      <div id="nav-admin">
+        <div class="nav-group">ACADEMIC</div>
+        <div class="nav-item active" onclick="route('admin')">Dashboard</div>
+        <div class="nav-item" onclick="route('classes')">Classes</div>
+        <div class="nav-item" onclick="route('students')">Students</div>
+        <div class="nav-item" onclick="route('subjects')">Subjects</div>
+        <div class="nav-item" onclick="route('assessments')">Assessments</div>
+        <div class="nav-group">MARKS</div>
+        <div class="nav-item" onclick="route('history')">History</div>
+        <div class="nav-group">ADMIN</div>
+        <div class="nav-item" onclick="route('users')">Users</div>
+        <div class="nav-item" onclick="route('assignments')">Assignments</div>
+      </div>
+      <div id="nav-teacher" class="hidden">
+        <div class="nav-group">MY TEACHING</div>
+        <div class="nav-item active" onclick="route('teacher')">Dashboard</div>
+        <div class="nav-item" onclick="guard('teacher-classes')">Classes</div>
+        <div class="nav-item" onclick="guard('teacher-assessments')">Assessments</div>
+        <div class="nav-group">MARKS</div>
+        <div class="nav-item" onclick="route('marks')">Enter Marks</div>
+        <div class="nav-item" onclick="route('teacher-history')">History</div>
+      </div>
+    </div>
+    <div class="main" id="main-content"></div>
+  </div>
 </div>
+
+<div id="modal-container"></div>
+<div id="toast-container"></div>
 
 <script>
-// FAKE DB - ORDER 3. REPLACE WITH SUPABASE LATER
-const DB = {
-  user: {id:1, name:'Sekonyela Sentle', role:'admin', email:'admin@school.ls'},
-  classes: [{id:1,name:'Grade 8A'}],
+// ORDER 23: PERSISTENCE
+const STORAGE_KEY = 'grader_demo_v1'
+const DEFAULT_DB = {
+  users: [
+    {id:1,name:'Sekonyela Sentle',email:'admin@school.ls',password:'admin123',role:'admin',status:'Active'},
+    {id:2,name:'Demo Teacher',email:'teacher@school.ls',password:'teacher123',role:'teacher',status:'Active'}
+  ],
+  currentUser: null,
+  classes: [{id:1,name:'Grade 8A'},{id:2,name:'Grade 8B'},{id:3,name:'Grade 9A'}],
   students: [
     {id:1,name:'Thabo Mokoena',class_id:1,active:true},
     {id:2,name:'Lerato Nkosi',class_id:1,active:true},
     {id:3,name:'Neo Radebe',class_id:1,active:true},
-    {id:4,name:'Mpho Tau',class_id:1,active:true}
+    {id:4,name:'Mpho Tau',class_id:1,active:true},
+    {id:5,name:'Puleng Moeti',class_id:2,active:true}
   ],
-  subjects: [{id:1,name:'Mathematics'}],
+  subjects: [{id:1,name:'Mathematics'},{id:2,name:'English'},{id:3,name:'Science'}],
+  assignments: [{id:1,teacher_id:2,class_id:1,subject_id:1}],
   assessments: [{id:1,name:'Mathematics Test 1',class_id:1,subject_id:1,maximum_mark:50,date:'2026-08-28'}],
-  marks: [
-    {id:1,student_id:1,assessment_id:1,mark:42},
-    {id:2,student_id:2,assessment_id:1,mark:38},
-    {id:3,student_id:3,assessment_id:1,mark:45}
-  ],
+  marks: [{id:1,student_id:1,assessment_id:1,mark:42},{id:2,student_id:2,assessment_id:1,mark:38},{id:3,student_id:3,assessment_id:1,mark:45}],
   audit: []
 }
+let DB = loadDB()
+let dirtyMarks = {} // ORDER 12
 
-// ORDER 4,5: AUTH
+function saveDB(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)) }
+function loadDB(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_DB }
+function resetDB(){ localStorage.removeItem(STORAGE_KEY); DB = DEFAULT_DB; location.reload() }
+
+// ORDER 2,3: AUTH
 function login(){
   const email = document.getElementById('email').value
   const pass = document.getElementById('password').value
-  if(email && pass){
-    document.getElementById('login-screen').classList.add('hidden')
-    document.getElementById('app-screen').classList.remove('hidden')
-    if(DB.user.role==='teacher') {
-      document.getElementById('nav-admin').classList.add('hidden')
-      document.getElementById('nav-teacher').classList.remove('hidden')
-    }
-    route(DB.user.role==='admin' ? 'admin' : 'teacher')
+  const user = DB.users.find(u=>u.email===email && u.password===pass)
+  if(user){
+    DB.currentUser = user
+    saveDB()
+    showApp()
   } else {
-    document.getElementById('login-error').innerText='Invalid credentials'
+    document.getElementById('login-error').innerText='Invalid email or password'
+    document.getElementById('login-error').classList.remove('hidden')
   }
 }
+function quickLogin(email,pass){
+  document.getElementById('email').value=email
+  document.getElementById('password').value=pass
+  login()
+}
+function showApp(){
+  document.getElementById('login-screen').classList.add('hidden')
+  document.getElementById('app-screen').classList.remove('hidden')
+  document.getElementById('nav-user').innerText = DB.currentUser.name + ' ▾'
+  document.getElementById('nav-user-role').innerText = DB.currentUser.role==='admin'?'Administrator':'Teacher'
+  if(DB.currentUser.role==='teacher') {
+    document.getElementById('nav-admin').classList.add('hidden')
+    document.getElementById('nav-teacher').classList.remove('hidden')
+  }
+  route(DB.currentUser.role==='admin'? 'admin' : 'teacher')
+}
 function logout(){
-  document.getElementById('app-screen').classList.add('hidden')
-  document.getElementById('login-screen').classList.remove('hidden')
+  DB.currentUser = null
+  saveDB()
+  location.reload()
+}
+function toggleUserMenu(){
+  document.getElementById('user-menu').classList.toggle('hidden')
 }
 
-// ORDER 6: ROUTING
+// ORDER 4: ROUTE GUARD
+function guard(page){
+  if(DB.currentUser.role==='teacher' && ['users','assignments','admin'].includes(page)){
+    showToast('Access denied', 'error')
+    return
+  }
+  route(page)
+}
 function route(page){
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'))
   event?.target?.classList.add('active')
   const main = document.getElementById('main-content')
-  
-  if(page==='admin') main.innerHTML = AdminDashboard() // ORDER 22
-  if(page==='teacher') main.innerHTML = TeacherDashboard() // ORDER 14,29
-  if(page==='marks') main.innerHTML = MarkEntry() // ORDER 15,30
-  if(page==='students') main.innerHTML = StudentsTable() // ORDER 9,31
-  if(page==='assessments') main.innerHTML = AssessmentsTable() // ORDER 13
-  if(page==='history') main.innerHTML = AuditHistory() // ORDER 20
+
+  if(page==='admin') main.innerHTML = AdminDashboard()
+  if(page==='teacher') main.innerHTML = TeacherDashboard()
+  if(page==='classes') main.innerHTML = ClassesPage()
+  if(page==='students') main.innerHTML = StudentsPage()
+  if(page==='subjects') main.innerHTML = SubjectsPage()
+  if(page==='users') main.innerHTML = UsersPage()
+  if(page==='assignments') main.innerHTML = AssignmentsPage()
+  if(page==='assessments') main.innerHTML = AssessmentsPage()
+  if(page==='marks') main.innerHTML = MarkEntry()
+  if(page==='history') main.innerHTML = AuditHistory()
+  if(page==='teacher-history') main.innerHTML = TeacherHistory()
 }
 
-// ORDER 22: ADMIN DASHBOARD
+// ORDER 5,21: PAGES
 function AdminDashboard(){
   return `
-  <h1>Good morning, ${DB.user.name}</h1>
-  <div class="stats-grid">
-    <div class="card stat-card"><div class="label">Students</div><div class="value">${DB.students.length}</div></div>
-    <div class="card stat-card"><div class="label">Teachers</div><div class="value">1</div></div>
-    <div class="card stat-card"><div class="label">Classes</div><div class="value">${DB.classes.length}</div></div>
-    <div class="card stat-card"><div class="label">Active Assessments</div><div class="value">${DB.assessments.length}</div></div>
+  <h1>Good morning, ${DB.currentUser.name}</h1>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0">
+    <div class="card"><div class="label">Students</div><div style="font-size:32px;font-weight:700">${DB.students.length}</div></div>
+    <div class="card"><div class="label">Teachers</div><div style="font-size:32px;font-weight:700">${DB.users.filter(u=>u.role==='teacher').length}</div></div>
+    <div class="card"><div class="label">Classes</div><div style="font-size:32px;font-weight:700">${DB.classes.length}</div></div>
+    <div class="card"><div class="label">Assessments</div><div style="font-size:32px;font-weight:700">${DB.assessments.length}</div></div>
   </div>
-  <div class="card"><h2>Recent Activity</h2><p class="label">No recent activity</p></div>
-  `
+  <div class="card"><h2>Quick Actions</h2>
+    <button class="btn" onclick="openModal('user')">+ Add Teacher</button>
+    <button class="btn btn-secondary" onclick="openModal('student')">+ Add Student</button>
+    <button class="btn btn-secondary" onclick="openModal('assessment')">+ Create Assessment</button>
+  </div>`
 }
 
-// ORDER 29: TEACHER DASHBOARD
 function TeacherDashboard(){
+  const assignment = DB.assignments.find(a=>a.teacher_id===DB.currentUser.id)
+  const assessment = DB.assessments[0]
+  const students = DB.students.filter(s=>s.class_id===assessment.class_id)
+  const completed = DB.marks.filter(m=>m.assessment_id===assessment.id).length
   return `
-  <h1>Good morning, ${DB.user.name}</h1>
-  <div class="stats-grid">
-    <div class="card stat-card"><div class="label">Classes</div><div class="value">1</div></div>
-    <div class="card stat-card"><div class="label">Assessments</div><div class="value">1</div></div>
-    <div class="card stat-card"><div class="label">Incomplete</div><div class="value">1</div></div>
-  </div>
-  <div class="card"><h2>Recent assessments</h2>
-    <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
-      <span>Mathematics Test 1</span><span class="label">38 / 40 completed</span>
+  <h1>Good morning, ${DB.currentUser.name}</h1>
+  <div class="card" style="margin-top:24px">
+    <h2>Your work</h2>
+    <div style="margin:16px 0">
+      <div class="label">${DB.classes.find(c=>c.id===assessment.class_id).name} · ${DB.subjects.find(s=>s.id===assessment.subject_id).name}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <div><strong>${assessment.name}</strong><div class="label">${completed} / ${students.length} completed</div></div>
+        <button class="btn" onclick="route('marks')">Enter Marks</button>
+      </div>
     </div>
-  </div>
-  `
+  </div>`
 }
 
-// ORDER 15,30: MARK ENTRY - MOST IMPORTANT SCREEN
-let markState = {...DB.marks.reduce((acc,m)=>({...acc,[m.student_id]:m.mark}),{})}
+function ClassesPage(){
+  return `<h1>Classes</h1><div class="table-wrap" style="margin-top:16px"><table>
+    <thead><tr><th>Name</th><th>Students</th><th>Subjects</th></tr></thead>
+    <tbody>${DB.classes.map(c=>`<tr><td>${c.name}</td><td>${DB.students.filter(s=>s.class_id===c.id).length}</td><td>3</td></tr>`).join('')}</tbody>
+  </table></div>`
+}
+
+function SubjectsPage(){
+  return `<h1>Subjects</h1><div class="table-wrap" style="margin-top:16px"><table>
+    <thead><tr><th>Name</th></tr></thead>
+    <tbody>${DB.subjects.map(s=>`<tr><td>${s.name}</td></tr>`).join('')}</tbody>
+  </table></div>`
+}
+
+function UsersPage(){ // ORDER 8
+  return `<div class="table-header"><h1>Users</h1><button class="btn" onclick="openModal('user')">+ Add User</button></div>
+  <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+  <tbody>${DB.users.map(u=>`<tr><td>${u.name}</td><td>${u.email}</td><td>${u.role}</td><td>${u.status}</td></tr>`).join('')}</tbody></table></div>`
+}
+
+function AssignmentsPage(){ // ORDER 7
+  return `<div class="table-header"><h1>Teacher Assignments</h1><button class="btn" onclick="openModal('assignment')">+ Add Assignment</button></div>
+  <div class="table-wrap"><table><thead><tr><th>Teacher</th><th>Class</th><th>Subject</th></tr></thead>
+  <tbody>${DB.assignments.map(a=>`<tr><td>${DB.users.find(u=>u.id===a.teacher_id).name}</td><td>${DB.classes.find(c=>c.id===a.class_id).name}</td><td>${DB.subjects.find(s=>s.id===a.subject_id).name}</td></tr>`).join('')}</tbody></table></div>`
+}
+
+function AssessmentsPage(){ // ORDER 8
+  return `<div class="table-header"><h1>Assessments</h1><button class="btn" onclick="openModal('assessment')">+ Create Assessment</button></div>
+  <div class="table-wrap"><table><thead><tr><th>Name</th><th>Class</th><th>Subject</th><th>Max</th><th>Date</th></tr></thead>
+  <tbody>${DB.assessments.map(a=>`<tr><td>${a.name}</td><td>${DB.classes.find(c=>c.id===a.class_id).name}</td><td>${DB.subjects.find(s=>s.id===a.subject_id).name}</td><td>${a.maximum_mark}</td><td>${a.date}</td></tr>`).join('')}</tbody></table></div>`
+}
+
+// ORDER 16,17: STUDENTS WITH SEARCH + FILTER
+function StudentsPage(){
+  return `<div class="table-header"><h1>Students</h1><button class="btn" onclick="openModal('student')">+ Add Student</button></div>
+  <div class="card" style="margin-bottom:16px;display:flex;gap:12px">
+    <input class="input" id="student-search" placeholder="Search students..." oninput="filterStudents()">
+    <select class="input" id="class-filter" style="width:200px" onchange="filterStudents()">
+      <option value="all">All Classes</option>${DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+    </select>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Name</th><th>Class</th><th>Status</th></tr></thead>
+  <tbody id="students-tbody">${renderStudents()}</tbody></table></div>`
+}
+function renderStudents(){
+  const search = document.getElementById('student-search')?.value.toLowerCase() || ''
+  const filter = document.getElementById('class-filter')?.value || 'all'
+  return DB.students.filter(s=>{
+    const matchSearch = s.name.toLowerCase().includes(search)
+    const matchClass = filter==='all' || s.class_id==filter
+    return matchSearch && matchClass
+  }).map(s=>`<tr><td>${s.name}</td><td>${DB.classes.find(c=>c.id===s.class_id).name}</td><td>${s.active?'Active':'Inactive'}</td></tr>`).join('')
+}
+function filterStudents(){ document.getElementById('students-tbody').innerHTML = renderStudents() }
+
+// ORDER 9,10,12,13,14,15: MARK ENTRY
 function MarkEntry(){
   const assessment = DB.assessments[0]
   const students = DB.students.filter(s=>s.class_id===assessment.class_id)
-  const completed = students.filter(s=>markState[s.id]!==undefined && markState[s.id]!=='').length
+  const marksForAssessment = DB.marks.filter(m=>m.assessment_id===assessment.id)
+  const completed = marksForAssessment.length
+  const avg = marksForAssessment.length? (marksForAssessment.reduce((a,b)=>a+b.mark,0)/marksForAssessment.length).toFixed(1) : '-'
+
   return `
   <h1>← Marks</h1>
-  <p class="label">${DB.classes[0].name} | ${DB.subjects[0].name}</p>
+  <p class="label">${DB.classes.find(c=>c.id===assessment.class_id).name} | ${DB.subjects.find(s=>s.id===assessment.subject_id).name}</p>
   <h2>${assessment.name}</h2>
-  <p class="label">Maximum mark: ${assessment.maximum_mark}</p>
-  <p style="margin:16px 0">${completed} of ${students.length} students completed</p>
-  
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Student</th><th>Mark</th><th>Status</th></tr></thead>
-      <tbody>
-        ${students.map(s=>`
-          <tr>
-            <td>${s.name}</td>
-            <td><input class="mark-input" type="number" value="${markState[s.id]||''}" 
-              onkeydown="if(event.key==='Tab'){event.preventDefault(); focusNext(this)}"
-              oninput="validateMark(this,${s.id},${assessment.maximum_mark})"></td>
-            <td class="status ${markState[s.id]!==undefined&&markState[s.id]!==''?'saved':'missing'}">
-              ${markState[s.id]!==undefined&&markState[s.id]!==''?'✓ Saved':'! Missing'}
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
+  <div class="card" style="margin:16px 0">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      <div><div class="label">Students</div><div style="font-size:20px;font-weight:600">${students.length}</div></div>
+      <div><div class="label">Maximum</div><div style="font-size:20px;font-weight:600">${assessment.maximum_mark}</div></div>
+      <div><div class="label">Completion</div><div style="font-size:20px;font-weight:600">${completed}/${students.length}</div></div>
+      <div><div class="label">Average</div><div style="font-size:20px;font-weight:600">${avg}%</div></div>
+    </div>
   </div>
-  <button class="btn" style="margin-top:16px" onclick="saveMarks()">Save Changes</button>
-  <div id="feedback" class="feedback"></div>
-  `
+
+  <div class="table-wrap">
+    <table><thead><tr><th>Student</th><th>Mark</th><th>Status</th></tr></thead><tbody>
+      ${students.map(s=>{
+        const mark = DB.marks.find(m=>m.student_id===s.id && m.assessment_id===assessment.id)
+        const currentVal = dirtyMarks[s.id]!== undefined? dirtyMarks[s.id] : mark?.mark || ''
+        let status = 'missing', text = '! Missing'
+        if(currentVal!==''){ status = dirtyMarks[s.id]!==undefined? 'unsaved' : 'saved'; text = dirtyMarks[s.id]!==undefined? '● Unsaved' : '✓ Saved' }
+        return `<tr><td>${s.name}</td><td><input class="mark-input ${dirtyMarks[s.id]!==undefined?'dirty':''}" type="number" value="${currentVal}"
+          oninput="setDirty(${s.id},this.value,${assessment.maximum_mark})"></td><td class="status ${status}">${text}</td></tr>`
+      }).join('')}
+    </tbody></table>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:12px">
+    <button class="btn" onclick="saveMarks()">Save Changes</button>
+    <span id="dirty-indicator" class="label" style="align-self:center">${Object.keys(dirtyMarks).length?'● Unsaved changes':''}</span>
+  </div>`
 }
 
-// ORDER 17,18: VALIDATION + SAVE
-function validateMark(input, studentId, max){
-  const val = input.value
-  if(val!=='' && (Number(val)<0 || Number(val)>max)){
-    showFeedback(`Maximum mark is ${max}`, 'danger')
-    input.value=''
-    return
-  }
-  markState[studentId]=val
-  route('marks') // re-render to update status
+function setDirty(studentId, val, max){
+  if(val!=='' && (Number(val)<0 || Number(val)>max)){ showToast(`Maximum mark is ${max}`, 'error'); return }
+  dirtyMarks[studentId] = val
+  route('marks')
 }
+
+// ORDER 10,11: SAVE + AUDIT
 function saveMarks(){
-  // ORDER 18: Save + Audit
-  Object.keys(markState).forEach(sid=>{
-    const oldMark = DB.marks.find(m=>m.student_id==sid)?.mark
-    if(oldMark!=markState[sid]){
-      DB.audit.push({
-        student_id:sid, old_mark:oldMark, new_mark:markState[sid], 
-        changed_by:DB.user.name, changed_at:new Date().toLocaleString()
-      })
+  const assessment = DB.assessments[0]
+  Object.keys(dirtyMarks).forEach(sid=>{
+    const val = dirtyMarks[sid]
+    const existing = DB.marks.find(m=>m.student_id==sid && m.assessment_id===assessment.id)
+    if(existing){
+      DB.audit.push({id:Date.now()+Math.random(),student_id:Number(sid),assessment_id:assessment.id,type:'Updated',old_mark:existing.mark,new_mark:Number(val),changed_by:DB.currentUser.name,changed_at:new Date().toLocaleString()})
+      existing.mark = Number(val)
+    } else {
+      DB.marks.push({id:Date.now()+Math.random(),student_id:Number(sid),assessment_id:assessment.id,mark:Number(val)})
+      DB.audit.push({id:Date.now()+Math.random(),student_id:Number(sid),assessment_id:assessment.id,type:'Created',old_mark:null,new_mark:Number(val),changed_by:DB.currentUser.name,changed_at:new Date().toLocaleString()})
     }
   })
-  showFeedback('✓ Marks saved successfully', 'success')
-}
-function showFeedback(msg, type){
-  const el = document.getElementById('feedback')
-  el.style.color = type==='success'? 'var(--success)' : 'var(--danger)'
-  el.innerText = msg
-  setTimeout(()=>el.innerText='',3000)
+  dirtyMarks = {}
+  saveDB()
+  showToast('✓ Marks saved successfully', 'success')
+  route('marks')
 }
 
-// ORDER 31: ADMIN TABLES
-function StudentsTable(){
-  return `
-  <div class="table-header">
-    <h1>Students</h1>
-    <button class="btn">+ Add Student</button>
-  </div>
-  <div class="card" style="margin-bottom:16px;display:flex;gap:12px">
-    <input class="input" placeholder="Search students...">
-    <select class="input" style="width:200px"><option>All Classes</option></select>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Name</th><th>Class</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody>
-        ${DB.students.map(s=>`
-          <tr>
-            <td>${s.name}</td>
-            <td>${DB.classes.find(c=>c.id===s.class_id).name}</td>
-            <td>${s.active?'Active':'Inactive'}</td>
-            <td>⋮</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  </div>
-  `
-}
-
-function AssessmentsTable(){
-  return `<h1>Assessments</h1><div class="card"><p>Create assessment form goes here</p></div>`
-}
-
-// ORDER 20: AUDIT HISTORY
+// ORDER 11,20: HISTORY
 function AuditHistory(){
-  return `
-  <h1>Mark History</h1>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Assessment</th><th>Student</th><th>Change</th><th>Changed By</th><th>Date</th></tr></thead>
-      <tbody>
-        ${DB.audit.map(a=>`
-          <tr>
-            <td>Mathematics Test 1</td>
-            <td>${DB.students.find(s=>s.id==a.student_id).name}</td>
-            <td>${a.old_mark||'-'} → ${a.new_mark}</td>
-            <td>${a.changed_by}</td>
-            <td class="label">${a.changed_at}</td>
-          </tr>
-        `).join('') || '<tr><td colspan="5">No changes yet</td></tr>'}
-      </tbody>
-    </table>
-  </div>
-  `
+  return `<h1>Mark History</h1><div class="table-wrap" style="margin-top:16px"><table>
+    <thead><tr><th>Assessment</th><th>Student</th><th>Type</th><th>Change</th><th>Changed By</th><th>Date</th></tr></thead>
+    <tbody>${DB.audit.map(a=>`<tr><td>${DB.assessments.find(as=>as.id===a.assessment_id).name}</td><td>${DB.students.find(s=>s.id===a.student_id).name}</td><td>${a.type}</td><td>${a.old_mark??'-'} → ${a.new_mark}</td><td>${a.changed_by}</td><td class="label">${a.changed_at}</td></tr>`).join('') || '<tr><td colspan="6">No changes yet</td></tr>'}</tbody>
+  </table></div>`
+}
+function TeacherHistory(){
+  const teacherAudit = DB.audit.filter(a=>a.changed_by===DB.currentUser.name)
+  return `<h1>Recent Changes</h1><div class="table-wrap" style="margin-top:16px"><table>
+    <thead><tr><th>Student</th><th>Assessment</th><th>Change</th><th>Date</th></tr></thead>
+    <tbody>${teacherAudit.map(a=>`<tr><td>${DB.students.find(s=>s.id===a.student_id).name}</td><td>${DB.assessments.find(as=>as.id===a.assessment_id).name}</td><td>${a.old_mark??'-'} → ${a.new_mark}</td><td class="label">${a.changed_at}</td></tr>`).join('') || '<tr><td colspan="4">No changes yet</td></tr>'}</tbody>
+  </table></div>`
 }
 
-function focusNext(current){
-  const inputs = [...document.querySelectorAll('.mark-input')]
-  const idx = inputs.indexOf(current)
-  if(inputs[idx+1]) inputs[idx+1].focus() // ORDER 16: TAB SPEED
+// ORDER 6,7,8: MODALS
+function openModal(type){
+  let content = ''
+  if(type==='user') content = `<h2>Add User</h2><input id="new-name" class="input" placeholder="Full name"><input id="new-email" class="input" placeholder="Email"><select id="new-role" class="input"><option>teacher</option><option>admin</option></select><button class="btn" onclick="createUser()">Create User</button>`
+  if(type==='assessment') content = `<h2>Create Assessment</h2><input id="ass-name" class="input" placeholder="Assessment name"><select id="ass-class" class="input">${DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`)}</select><select id="ass-subject" class="input">${DB.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`)}</select><input id="ass-max" type="number" class="input" placeholder="Maximum mark"><input id="ass-date" type="date" class="input"><button class="btn" onclick="createAssessment()">Create</button>`
+  if(type==='assignment') content = `<h2>Add Assignment</h2><select id="ass-teacher" class="input">${DB.users.filter(u=>u.role==='teacher').map(u=>`<option value="${u.id}">${u.name}</option>`)}</select><select id="ass-class" class="input">${DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`)}</select><select id="ass-subject" class="input">${DB.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`)}</select><button class="btn" onclick="createAssignment()">Save</button>`
+
+  document.getElementById('modal-container').innerHTML = `<div class="modal-backdrop" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">${content}<button class="btn btn-secondary" style="margin-top:12px" onclick="closeModal()">Cancel</button></div></div>`
 }
+function closeModal(){ document.getElementById('modal-container').innerHTML = '' }
+function createUser(){
+  DB.users.push({id:Date.now(),name:document.getElementById('new-name').value,email:document.getElementById('new-email').value,password:'password',role:document.getElementById('new-role').value,status:'Active'})
+  saveDB(); closeModal(); showToast('✓ User created successfully', 'success'); route('users')
+}
+function createAssessment(){
+  DB.assessments.push({id:Date.now(),name:document.getElementById('ass-name').value,class_id:Number(document.getElementById('ass-class').value),subject_id:Number(document.getElementById('ass-subject').value),maximum_mark:Number(document.getElementById('ass-max').value),date:document.getElementById('ass-date').value})
+  saveDB(); closeModal(); showToast('✓ Assessment created', 'success'); route('assessments')
+}
+function createAssignment(){
+  DB.assignments.push({id:Date.now(),teacher_id:Number(document.getElementById('ass-teacher').value),class_id:Number(document.getElementById('ass-class').value),subject_id:Number(document.getElementById('ass-subject').value)})
+  saveDB(); closeModal(); showToast('✓ Assignment created', 'success'); route('assignments')
+}
+
+// ORDER 27: TOAST
+function showToast(msg, type){
+  const id = Date.now()
+  document.getElementById('toast-container').innerHTML += `<div id="toast-${id}" class="toast ${type}">${msg}</div>`
+  setTimeout(()=>document.getElementById(`toast-${id}`)?.remove(),3000)
+}
+
+// AUTO LOGIN IF ALREADY LOGGED IN
+if(DB.currentUser) showApp()
 </script>
 </body>
 </html>
