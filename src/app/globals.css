@@ -1,4 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { background: #F8FAFC; color: #0F172A; }
+
+:root {
+  --bg: #0F172A; /* navy */
+  --card: #1E293B; /* slate */
+  --accent: #3B82F6; /* blue */
+  --text: #F8FAFC; /* off-white */
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
